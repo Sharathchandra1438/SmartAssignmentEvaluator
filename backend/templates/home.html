@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Assignment Evaluation System</title>
+
+<link rel="stylesheet" href="/static/style.css">
+
+<style>
+
+body{
+font-family: Arial;
+margin:0;
+background:#f5f7fb;
+}
+
+/* Navbar */
+
+.navbar{
+background:#2c3e50;
+color:white;
+padding:15px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.navbar h2{
+margin:0;
+cursor:pointer;
+}
+
+.navbar a{
+color:white;
+text-decoration:none;
+margin-left:20px;
+font-weight:bold;
+}
+
+.navbar a:hover{
+text-decoration:underline;
+}
+
+.logoutBtn{
+
+background:red;
+color:white;
+border:none;
+padding:6px 15px;
+border-radius:5px;
+cursor:pointer;
+margin-left:20px;
+
+}
+
+/* Hero Section */
+
+.hero{
+text-align:center;
+padding:80px;
+background:white;
+margin:30px;
+border-radius:10px;
+box-shadow:0px 0px 10px #ccc;
+}
+
+.hero h1{
+font-size:40px;
+margin-bottom:10px;
+}
+
+.hero p{
+font-size:18px;
+color:#555;
+margin-bottom:30px;
+}
+
+.hero button{
+
+padding:12px 25px;
+margin:10px;
+font-size:18px;
+border:none;
+border-radius:5px;
+cursor:pointer;
+
+}
+
+.loginBtn{
+background:#3498db;
+color:white;
+}
+
+.registerBtn{
+background:#27ae60;
+color:white;
+}
+
+.dashboardBtn{
+background:#8e44ad;
+color:white;
+}
+
+/* Features */
+
+.features{
+
+display:flex;
+justify-content:center;
+gap:40px;
+margin:40px;
+
+}
+
+.box{
+
+background:white;
+padding:30px;
+width:250px;
+text-align:center;
+border-radius:10px;
+box-shadow:0px 0px 10px #ccc;
+
+}
+
+.footer{
+
+margin-top:50px;
+text-align:center;
+padding:20px;
+background:#2c3e50;
+color:white;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+
+<!-- NAVBAR -->
+
+<div class="navbar">
+
+<h2 onclick="location.href='/'">
+Assignment Evaluation System
+</h2>
+
+<div id="navLinks">
+
+<a href="/">Home</a>
+
+<a href="/login" id="loginLink">
+Login
+</a>
+
+<a href="/register" id="registerLink">
+Register
+</a>
+
+<span id="username"></span>
+
+<button id="logoutBtn"
+class="logoutBtn"
+onclick="logout()"
+style="display:none">
+
+Logout
+
+</button>
+
+</div>
+
+</div>
+
+
+<!-- HERO -->
+
+<div class="hero">
+
+<h1>Automatic Assignment Evaluation</h1>
+
+<p>
+
+Upload assignments and get instant evaluation using AI and keyword matching.
+
+</p>
+
+
+<div id="buttons">
+
+<button class="loginBtn"
+onclick="location.href='/login'">
+
+Login
+
+</button>
+
+
+<button class="registerBtn"
+onclick="location.href='/register'">
+
+Register
+
+</button>
+
+</div>
+
+</div>
+
+
+
+<!-- FEATURES -->
+
+<div class="features">
+
+<div class="box">
+
+<h3>For Teachers</h3>
+
+<p>
+
+✔ Create assignments<br><br>
+
+✔ Add keywords<br><br>
+
+✔ View submissions<br><br>
+
+✔ See similarity score
+
+</p>
+
+</div>
+
+
+<div class="box">
+
+<h3>For Students</h3>
+
+<p>
+
+✔ Upload PDF<br><br>
+
+✔ Enter Roll Number<br><br>
+
+✔ Automatic Evaluation<br><br>
+
+✔ Instant Results
+
+</p>
+
+</div>
+
+
+<div class="box">
+
+<h3>System Features</h3>
+
+<p>
+
+✔ Writer Detection<br><br>
+
+✔ Page Counting<br><br>
+
+✔ Keyword Matching<br><br>
+
+✔ Question Detection
+
+</p>
+
+</div>
+
+</div>
+
+
+
+<!-- FOOTER -->
+
+<div class="footer">
+
+Assignment Evaluation System © 2026
+
+</div>
+
+
+
+<script>
+
+/* CHECK LOGIN */
+
+let user = JSON.parse(localStorage.getItem("user"))
+
+if(user){
+
+document.getElementById("username").innerHTML =
+"Welcome, "+user.name
+
+
+document.getElementById("loginLink").style.display="none"
+document.getElementById("registerLink").style.display="none"
+
+document.getElementById("logoutBtn").style.display="inline-block"
+
+
+/* SHOW DASHBOARD BUTTON */
+
+let btnDiv=document.getElementById("buttons")
+
+if(user.role=="teacher"){
+
+btnDiv.innerHTML=
+
+`<button class="dashboardBtn"
+onclick="location.href='/teacher'">
+
+Go To Teacher Dashboard
+
+</button>`
+
+}
+
+else{
+
+btnDiv.innerHTML=
+
+`<button class="dashboardBtn"
+onclick="location.href='/student'">
+
+Go To Student Dashboard
+
+</button>`
+
+}
+
+}
+
+
+/* LOGOUT */
+
+function logout(){
+
+localStorage.removeItem("user")
+
+window.location="/login"
+
+}
+
+</script>
+
+
+</body>
+
+</html>

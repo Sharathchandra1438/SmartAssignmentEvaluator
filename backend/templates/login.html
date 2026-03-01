@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Login</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<!-- <div id="nav"></div> -->
+ {% include 'navbar.html' %}
+
+<h1>Assignment Evaluation System</h1>
+
+<div class="container">
+
+<h2>Login</h2>
+
+<input id="email" placeholder="Email">
+
+<input id="password" type="password" placeholder="Password">
+
+<button onclick="login()">Login</button>
+
+<br><br>
+
+<a href="/register">Register Here</a>
+
+</div>
+
+<script>
+
+// fetch("/navbar")
+// .then(res=>res.text())
+// .then(data=>{
+// document.getElementById("nav").innerHTML=data
+// })
+
+
+async function login(){
+
+let formData=new FormData()
+
+formData.append(
+"email",
+document.getElementById("email").value
+)
+
+formData.append(
+"password",
+document.getElementById("password").value
+)
+
+
+let res = await fetch(
+"/loginUser",
+{
+method:"POST",
+body:formData
+})
+
+
+let data = await res.json()
+
+
+if(data.role=="teacher"){
+
+localStorage.setItem(
+"user",
+JSON.stringify(data)
+)
+
+window.location="/teacher"
+
+}
+
+else if(data.role=="student"){
+
+localStorage.setItem(
+"user",
+JSON.stringify(data)
+)
+
+window.location="/student"
+
+}
+
+else{
+
+alert("Invalid Login")
+
+}
+
+}
+
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Register</title>
+
+<link rel="stylesheet" href="/static/style.css">
+
+</head>
+
+<body>
+
+<!-- <div id="nav"></div> -->
+ {% include 'navbar.html' %}
+
+<h1>Register</h1>
+
+<div class="container">
+
+<input id="name" placeholder="Name">
+
+<input id="email" placeholder="Email">
+
+<input id="password" type="password" placeholder="Password">
+
+<select id="role">
+
+<option value="student">Student</option>
+
+<option value="teacher">Teacher</option>
+
+</select>
+
+<button onclick="register()">
+
+Register
+
+</button>
+
+</div>
+
+
+<script>
+
+// fetch("/navbar")
+// .then(res=>res.text())
+// .then(data=>{
+// document.getElementById("nav").innerHTML=data
+// })
+
+
+async function register(){
+
+let formData=new FormData()
+
+formData.append(
+"name",
+document.getElementById("name").value
+)
+
+formData.append(
+"email",
+document.getElementById("email").value
+)
+
+formData.append(
+"password",
+document.getElementById("password").value
+)
+
+formData.append(
+"role",
+document.getElementById("role").value
+)
+
+
+await fetch(
+"/registerUser",
+{
+method:"POST",
+body:formData
+}
+)
+
+
+alert("Registered Successfully")
+
+window.location="/login"
+
+}
+
+</script>
+
+</body>
+
+</html>

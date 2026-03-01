@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+pymongo
+jinja2
+python-multipart
+pdf2image
+pillow
+pytesseract
+torch
+torchvision
+rapidfuzz

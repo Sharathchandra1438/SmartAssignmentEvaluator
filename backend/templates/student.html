@@ -1,0 +1,186 @@
+<html>
+
+<head>
+<title>Student Dashboard</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+{% include 'navbar.html' %}
+
+<h1>Student Dashboard</h1>
+
+<div class="container">
+
+<input id="name" placeholder="Student Name">
+
+<input id="roll" placeholder="Roll Number">
+
+</div>
+
+<div class="container">
+
+<h2>Upload Assignment</h2>
+
+<select id="assignment">
+<option>Select Assignment</option>
+</select>
+
+<input type="file" id="file">
+
+<button onclick="submitAssignment()">
+Submit Assignment
+</button>
+
+</div>
+
+<div class="container">
+
+<h2>Result</h2>
+
+<div id="result" class="resultBox">
+
+No submission yet
+
+</div>
+
+</div>
+
+<script>
+
+loadAssignments()
+
+
+/* MARKS CALCULATION */
+
+function calculateMarks(score,pages){
+
+score=parseFloat(score)
+pages=parseInt(pages)
+
+/* 0 marks */
+
+if(score===0)
+return 0
+
+/* 1 mark */
+
+if(score<5 && pages<5)
+return 1
+
+/* 2 marks */
+
+if(score>=5 && score<10 && pages>=3)
+return 2
+
+/* 3 marks */
+
+if(score>=10 && score<30 && pages>=5)
+return 3
+
+/* 4 marks */
+
+if(score>=30 && score<60 && pages>=7)
+return 4
+
+/* 5 marks */
+
+if(score>=60 && pages>=10)
+return 5
+
+/* Default */
+
+return 3
+
+
+}
+
+
+
+async function loadAssignments(){
+
+let res=await fetch(
+"http://127.0.0.1:8000/assignments"
+)
+
+let data=await res.json()
+
+let select=document.getElementById("assignment")
+
+data.forEach(a=>{
+
+let option=document.createElement("option")
+
+option.value=a.id
+
+option.text=a.title
+
+select.appendChild(option)
+
+})
+
+}
+
+
+
+async function submitAssignment(){
+
+let formData=new FormData()
+
+formData.append(
+"studentName",
+document.getElementById("name").value
+)
+
+formData.append(
+"rollNo",
+document.getElementById("roll").value
+)
+
+formData.append(
+"assignmentId",
+document.getElementById("assignment").value
+)
+
+formData.append(
+"file",
+document.getElementById("file").files[0]
+)
+
+let res=await fetch(
+"http://127.0.0.1:8000/submitAssignment",
+{
+method:"POST",
+body:formData
+})
+
+let data=await res.json()
+
+
+/* CALCULATE MARKS */
+
+let marks=calculateMarks(data.score,data.pages)
+
+
+
+document.getElementById("result").innerHTML=
+
+"<b>Student Name:</b> "+data.studentName+"<br><br>"+
+
+"<b>Roll Number:</b> "+data.rollNo+"<br><br>"+
+
+"<b>Writer Name:</b> "+data.writerName+"<br><br>"+
+
+"<b>Pages:</b> "+data.pages+"<br><br>"+
+
+"<b>Similarity Score:</b> "+data.score+" %<br><br>"+
+
+"<b>Marks:</b> "+marks+" / 5"
+
+}
+
+</script>
+
+</body>
+</html>
