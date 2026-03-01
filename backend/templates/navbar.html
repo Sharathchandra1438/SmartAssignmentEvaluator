@@ -4,6 +4,7 @@
 Assignment Evaluation System
 </h2>
 
+
 <div id="navLinks">
 
 <a href="/">Home</a>
@@ -31,47 +32,64 @@ Logout
 </div>
 
 
+
 <style>
 
 /* NAVBAR STYLE */
 
 .navbar{
+
 background:#2c3e50;
 color:white;
 padding:15px 30px;
 display:flex;
 justify-content:space-between;
 align-items:center;
+
 }
 
 .navbar h2{
+
 margin:0;
 cursor:pointer;
+
 }
 
+
 #navLinks{
+
 display:flex;
 align-items:center;
 gap:20px;
+
 }
 
+
 .navbar a{
+
 color:#9b59b6;
 text-decoration:none;
 font-weight:bold;
+
 }
 
+
 .navbar a:hover{
+
 color:white;
+
 }
+
 
 /* Username */
 
 .username{
+
 color:white;
 font-weight:bold;
-margin-left:10px;
+
 }
+
 
 /* Logout Button */
 
@@ -88,20 +106,25 @@ display:none;
 
 }
 
+
 .logoutBtn:hover{
+
 background:#1d4ed8;
+
 }
 
 </style>
 
 
+
 <script>
 
-/* WAIT UNTIL NAVBAR LOADS */
 
-setTimeout(()=>{
+/* LOAD NAVBAR STATE */
 
-let user = JSON.parse(localStorage.getItem("user"))
+document.addEventListener("DOMContentLoaded",function(){
+
+let userData = localStorage.getItem("user")
 
 let loginLink = document.getElementById("loginLink")
 let registerLink = document.getElementById("registerLink")
@@ -109,21 +132,25 @@ let logoutBtn = document.getElementById("logoutBtn")
 let username = document.getElementById("username")
 
 
+
 /* NOT LOGGED IN */
 
-if(!user){
+if(!userData){
 
 loginLink.style.display="inline-block"
 registerLink.style.display="inline-block"
 logoutBtn.style.display="none"
 username.innerHTML=""
 
+return
+
 }
+
 
 
 /* LOGGED IN */
 
-else{
+let user = JSON.parse(userData)
 
 loginLink.style.display="none"
 registerLink.style.display="none"
@@ -132,9 +159,8 @@ logoutBtn.style.display="inline-block"
 
 username.innerHTML="Welcome, "+user.name
 
-}
 
-},100)
+})
 
 
 
@@ -144,7 +170,7 @@ function logout(){
 
 localStorage.removeItem("user")
 
-window.location="/login"
+window.location.href="/login"
 
 }
 

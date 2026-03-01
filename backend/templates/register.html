@@ -11,10 +11,10 @@
 
 <body>
 
-<!-- <div id="nav"></div> -->
- {% include 'navbar.html' %}
+{% include 'navbar.html' %}
 
 <h1>Register</h1>
+
 
 <div class="container">
 
@@ -32,6 +32,7 @@
 
 </select>
 
+
 <button onclick="register()">
 
 Register
@@ -41,54 +42,83 @@ Register
 </div>
 
 
-<script>
 
-// fetch("/navbar")
-// .then(res=>res.text())
-// .then(data=>{
-// document.getElementById("nav").innerHTML=data
-// })
+<script>
 
 
 async function register(){
 
-let formData=new FormData()
-
-formData.append(
-"name",
-document.getElementById("name").value
-)
-
-formData.append(
-"email",
-document.getElementById("email").value
-)
-
-formData.append(
-"password",
-document.getElementById("password").value
-)
-
-formData.append(
-"role",
-document.getElementById("role").value
-)
+let name = document.getElementById("name").value
+let email = document.getElementById("email").value
+let password = document.getElementById("password").value
+let role = document.getElementById("role").value
 
 
-await fetch(
+/* VALIDATION */
+
+if(name=="" || email=="" || password==""){
+
+alert("Please fill all fields")
+return
+
+}
+
+
+/* FORM DATA */
+
+let formData = new FormData()
+
+formData.append("name",name)
+formData.append("email",email)
+formData.append("password",password)
+formData.append("role",role)
+
+
+
+try{
+
+
+let res = await fetch(
+
 "/registerUser",
 {
 method:"POST",
 body:formData
 }
+
+
 )
 
 
+let data = await res.json()
+
+
+if(data.message){
+
+alert(data.message)
+
+}else{
+
 alert("Registered Successfully")
+
+}
+
 
 window.location="/login"
 
+
 }
+
+catch(error){
+
+alert("Server Error - Try Again")
+
+}
+
+
+}
+
+
 
 </script>
 

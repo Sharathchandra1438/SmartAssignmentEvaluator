@@ -2,43 +2,58 @@
 <html>
 
 <head>
+
 <title>Login</title>
+
 <link rel="stylesheet" href="/static/style.css">
+
 </head>
 
 <body>
 
-<!-- <div id="nav"></div> -->
- {% include 'navbar.html' %}
+{% include 'navbar.html' %}
+
 
 <h1>Assignment Evaluation System</h1>
+
 
 <div class="container">
 
 <h2>Login</h2>
 
+
 <input id="email" placeholder="Email">
-
-<input id="password" type="password" placeholder="Password">
-
-<button onclick="login()">Login</button>
 
 <br><br>
 
-<a href="/register">Register Here</a>
+<input id="password" type="password" placeholder="Password">
+
+<br><br>
+
+<button onclick="login()">
+
+Login
+
+</button>
+
+
+<br><br>
+
+<a href="/register">
+
+Register Here
+
+</a>
 
 </div>
 
+
+
 <script>
 
-// fetch("/navbar")
-// .then(res=>res.text())
-// .then(data=>{
-// document.getElementById("nav").innerHTML=data
-// })
-
-
 async function login(){
+
+try{
 
 let formData=new FormData()
 
@@ -53,15 +68,29 @@ document.getElementById("password").value
 )
 
 
-let res = await fetch(
-"/loginUser",
-{
+
+let response = await fetch("/loginUser",{
+
 method:"POST",
+
 body:formData
+
 })
 
 
-let data = await res.json()
+
+if(!response.ok){
+
+alert("Server Error")
+
+return
+
+}
+
+
+
+let data = await response.json()
+
 
 
 if(data.role=="teacher"){
@@ -71,9 +100,11 @@ localStorage.setItem(
 JSON.stringify(data)
 )
 
-window.location="/teacher"
+window.location.href="/teacher"
 
 }
+
+
 
 else if(data.role=="student"){
 
@@ -82,19 +113,36 @@ localStorage.setItem(
 JSON.stringify(data)
 )
 
-window.location="/student"
+window.location.href="/student"
 
 }
+
+
 
 else{
 
-alert("Invalid Login")
+alert("Invalid Email or Password")
+
+}
+
+
+
+}
+
+catch(error){
+
+alert("Server not reachable")
+
+console.log(error)
 
 }
 
 }
+
+
 
 </script>
+
 
 </body>
 

@@ -3,7 +3,7 @@
 
 <head>
 
-<title>Teacher Dashboard</title>
+<title>Student Dashboard</title>
 
 <link rel="stylesheet" href="/static/style.css">
 
@@ -13,25 +13,34 @@
 
 {% include 'navbar.html' %}
 
-<h1>Teacher Dashboard</h1>
+<h1>Student Dashboard</h1>
+
 
 
 <div class="container">
 
-<h2>Create Assignment</h2>
+<input id="name" placeholder="Student Name">
 
-<input id="title" placeholder="Assignment Title">
+<input id="roll" placeholder="Roll Number">
 
-<br><br>
+</div>
 
-<textarea id="points" rows="6"
-placeholder="Questions (One Per Line)">
-</textarea>
 
-<br><br>
 
-<button onclick="createAssignment()">
-Create Assignment
+<div class="container">
+
+<h2>Upload Assignment</h2>
+
+<select id="assignment">
+
+<option>Loading...</option>
+
+</select>
+
+<input type="file" id="file">
+
+<button onclick="submitAssignment()">
+Submit Assignment
 </button>
 
 </div>
@@ -40,27 +49,13 @@ Create Assignment
 
 <div class="container">
 
-<h2>Student Submissions</h2>
+<h2>Result</h2>
 
-<table border="1">
+<div id="result" class="resultBox">
 
-<tr>
+No submission yet
 
-<th>Student</th>
-<th>Roll</th>
-<th>Writer</th>
-<th>Pages</th>
-<th>Assignment</th>
-<th>Score</th>
-<th>Marks</th>
-
-</tr>
-
-<tbody id="tableBody">
-
-</tbody>
-
-</table>
+</div>
 
 </div>
 
@@ -68,9 +63,9 @@ Create Assignment
 
 <script>
 
-/* API URL (Works Local + Online) */
 
-const API_URL = window.location.origin;
+const API_URL = window.location.origin
+
 
 
 /* LOGIN CHECK */
@@ -78,14 +73,64 @@ const API_URL = window.location.origin;
 let userData = localStorage.getItem("user")
 
 if(!userData){
-window.location.href="/login"
+
+window.location="/login"
+
 }
 
 let user = JSON.parse(userData)
 
 
 
-/* MARKS CALCULATION */
+
+/* LOAD ASSIGNMENTS */
+
+loadAssignments()
+
+
+
+async function loadAssignments(){
+
+try{
+
+let res=await fetch(
+
+API_URL + "/assignments"
+
+)
+
+let data=await res.json()
+
+let select=document.getElementById("assignment")
+
+select.innerHTML=""
+
+data.forEach(a=>{
+
+let option=document.createElement("option")
+
+option.value=a.id
+
+option.text=a.title
+
+select.appendChild(option)
+
+})
+
+}
+
+catch(error){
+
+console.log(error)
+
+}
+
+}
+
+
+
+
+/* MARKS */
 
 function calculateMarks(score,pages){
 
@@ -105,88 +150,66 @@ return 3
 
 
 
-/* LOAD RESULTS */
 
-loadResults()
+/* SUBMIT */
 
-async function loadResults(){
-
-let res = await fetch(
-API_URL + "/results/" + user.email
-)
-
-let data = await res.json()
-
-let table=document.getElementById("tableBody")
-
-table.innerHTML=""
-
-data.forEach(r=>{
-
-let marks=calculateMarks(r.score,r.pages)
-
-let row=`
-
-<tr>
-
-<td>${r.student}</td>
-
-<td>${r.roll}</td>
-
-<td>${r.writer}</td>
-
-<td>${r.pages}</td>
-
-<td>${r.title}</td>
-
-<td>${r.score}%</td>
-
-<td>${marks}/5</td>
-
-</tr>
-
-`
-
-table.innerHTML+=row
-
-})
-
-}
-
-
-
-/* CREATE ASSIGNMENT */
-
-async function createAssignment(){
-
-let title=document.getElementById("title").value
-
-let points=document.getElementById("points").value
-
+async function submitAssignment(){
 
 let formData=new FormData()
 
-formData.append("teacherName",user.name)
+formData.append(
+"studentName",
+document.getElementById("name").value
+)
 
-formData.append("teacherEmail",user.email)
+formData.append(
+"rollNo",
+document.getElementById("roll").value
+)
 
-formData.append("title",title)
+formData.append(
+"assignmentId",
+document.getElementById("assignment").value
+)
 
-formData.append("points",points)
+formData.append(
+"file",
+document.getElementById("file").files[0]
+)
 
 
-await fetch(
-API_URL + "/createAssignment",
+
+let res=await fetch(
+
+API_URL + "/submitAssignment",
 {
 method:"POST",
 body:formData
 })
 
-alert("Assignment Created")
+let data=await res.json()
 
-loadResults()
+
+let marks=calculateMarks(data.score,data.pages)
+
+
+
+document.getElementById("result").innerHTML=
+
+"<b>Student Name:</b> "+data.studentName+"<br><br>"+
+
+"<b>Roll Number:</b> "+data.rollNo+"<br><br>"+
+
+"<b>Writer Name:</b> "+data.writerName+"<br><br>"+
+
+"<b>Pages:</b> "+data.pages+"<br><br>"+
+
+"<b>Similarity Score:</b> "+data.score+" %<br><br>"+
+
+"<b>Marks:</b> "+marks+" / 5"
 
 }
+
 
 
 </script>

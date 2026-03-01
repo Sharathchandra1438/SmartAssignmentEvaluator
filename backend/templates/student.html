@@ -3,7 +3,7 @@
 
 <head>
 
-<title>Student Dashboard</title>
+<title>Teacher Dashboard</title>
 
 <link rel="stylesheet" href="/static/style.css">
 
@@ -13,43 +13,54 @@
 
 {% include 'navbar.html' %}
 
-<h1>Student Dashboard</h1>
+<h1>Teacher Dashboard</h1>
+
 
 <div class="container">
 
-<input id="name" placeholder="Student Name">
+<h2>Create Assignment</h2>
 
-<input id="roll" placeholder="Roll Number">
+<input id="title" placeholder="Assignment Title">
 
-</div>
+<br><br>
 
-<div class="container">
+<textarea id="points" rows="6"
+placeholder="Questions (One Per Line)">
+</textarea>
 
-<h2>Upload Assignment</h2>
+<br><br>
 
-<select id="assignment">
-
-<option>Select Assignment</option>
-
-</select>
-
-<input type="file" id="file">
-
-<button onclick="submitAssignment()">
-Submit Assignment
+<button onclick="createAssignment()">
+Create Assignment
 </button>
 
 </div>
 
+
+
 <div class="container">
 
-<h2>Result</h2>
+<h2>Student Submissions</h2>
 
-<div id="result" class="resultBox">
+<table border="1">
 
-No submission yet
+<tr>
 
-</div>
+<th>Student</th>
+<th>Roll</th>
+<th>Writer</th>
+<th>Pages</th>
+<th>Assignment</th>
+<th>Score</th>
+<th>Marks</th>
+
+</tr>
+
+<tbody id="tableBody">
+
+</tbody>
+
+</table>
 
 </div>
 
@@ -62,10 +73,17 @@ No submission yet
 const API_URL = window.location.origin;
 
 
+/* LOGIN CHECK */
 
-/* LOAD ASSIGNMENTS */
+let userData = localStorage.getItem("user")
 
-loadAssignments()
+if(!userData){
+
+window.location="/login"
+
+}
+
+let user = JSON.parse(userData)
 
 
 
@@ -89,88 +107,100 @@ return 3
 
 
 
-async function loadAssignments(){
+/* LOAD RESULTS */
 
-let res=await fetch(
-API_URL + "/assignments"
+loadResults()
+
+async function loadResults(){
+
+try{
+
+let res = await fetch(
+
+API_URL + "/results/" + user.email
+
 )
 
-let data=await res.json()
+let data = await res.json()
 
-let select=document.getElementById("assignment")
+let table=document.getElementById("tableBody")
 
-select.innerHTML="<option>Select Assignment</option>"
+table.innerHTML=""
 
-data.forEach(a=>{
 
-let option=document.createElement("option")
+data.forEach(r=>{
 
-option.value=a.id
+let marks=calculateMarks(r.score,r.pages)
 
-option.text=a.title
+let row=`
 
-select.appendChild(option)
+<tr>
+
+<td>${r.student}</td>
+
+<td>${r.roll}</td>
+
+<td>${r.writer}</td>
+
+<td>${r.pages}</td>
+
+<td>${r.title}</td>
+
+<td>${r.score}%</td>
+
+<td>${marks}/5</td>
+
+</tr>
+
+`
+
+table.innerHTML+=row
 
 })
 
 }
 
+catch(error){
+
+console.log(error)
+
+}
+
+}
 
 
-async function submitAssignment(){
+
+
+/* CREATE ASSIGNMENT */
+
+async function createAssignment(){
+
+let title=document.getElementById("title").value
+let points=document.getElementById("points").value
+
 
 let formData=new FormData()
 
-formData.append(
-"studentName",
-document.getElementById("name").value
-)
-
-formData.append(
-"rollNo",
-document.getElementById("roll").value
-)
-
-formData.append(
-"assignmentId",
-document.getElementById("assignment").value
-)
-
-formData.append(
-"file",
-document.getElementById("file").files[0]
-)
+formData.append("teacherName",user.name)
+formData.append("teacherEmail",user.email)
+formData.append("title",title)
+formData.append("points",points)
 
 
-let res=await fetch(
-API_URL + "/submitAssignment",
+await fetch(
+
+API_URL + "/createAssignment",
 {
 method:"POST",
 body:formData
 })
 
-let data=await res.json()
+alert("Assignment Created")
 
-
-let marks=calculateMarks(data.score,data.pages)
-
-
-
-document.getElementById("result").innerHTML=
-
-"<b>Student Name:</b> "+data.studentName+"<br><br>"+
-
-"<b>Roll Number:</b> "+data.rollNo+"<br><br>"+
-
-"<b>Writer Name:</b> "+data.writerName+"<br><br>"+
-
-"<b>Pages:</b> "+data.pages+"<br><br>"+
-
-"<b>Similarity Score:</b> "+data.score+" %<br><br>"+
-
-"<b>Marks:</b> "+marks+" / 5"
+loadResults()
 
 }
+
 
 
 </script>
