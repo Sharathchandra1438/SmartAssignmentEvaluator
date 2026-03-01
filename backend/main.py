@@ -117,8 +117,7 @@ users = db["users"]
 # TESSERACT
 ##################################################
 
-# pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
+pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 ##################################################
 # WRITER MODEL
@@ -335,46 +334,66 @@ def similarity(points,text):
     finalScore=(matched/total)*100
 
     return finalScore,matched,total
+
 ##################################################
-# submitAssignment
+# SUBMIT ASSIGNMENT
 ##################################################
 
 @app.post("/submitAssignment")
 async def submit(
+
     studentName: str = Form(...),
     rollNo: str = Form(...),
     assignmentId: str = Form(...),
     file: UploadFile = File(...)
+
 ):
-    try:
-        pdf = await file.read()
-        pages = convert_from_bytes(pdf, dpi=150)  # lower dpi to reduce memory usage
-        text = extract_text(pages)
-        assignment = assignments.find_one({"_id": ObjectId(assignmentId)})
-        if not assignment:
-            return {"error": "Assignment not found"}
-        points = assignment["points"]
-        score, matched, total = similarity(points, text)
-        writer, pagesCount = detect_writer(pages)
-        result = {
-            "studentName": studentName,
-            "rollNo": rollNo,
-            "writerName": writer,
-            "pages": pagesCount,
-            "title": assignment["title"],
-            "teacher": assignment["teacherName"],
-            "teacherEmail": assignment["teacherEmail"],
-            "score": round(score,2),
-            "totalQuestions": total,
-            "matchedQuestions": matched,
-            "unansweredQuestions": total - matched
-        }
-        inserted = results.insert_one(result)
-        result["_id"] = str(inserted.inserted_id)
-        return result
-    except Exception as e:
-        print("Error in submitAssignment:", e)
-        return {"error": str(e)}
+
+    pdf = await file.read()
+
+    pages = convert_from_bytes(pdf, dpi=300)
+
+    text = extract_text(pages)
+
+    assignment = assignments.find_one({
+        "_id": ObjectId(assignmentId)
+    })
+
+    points = assignment["points"]
+
+    score, matched, total = similarity(points, text)
+
+    unanswered = total - matched
+
+    writer, pagesCount = detect_writer(pages)
+
+    result = {
+
+        "studentName": studentName,
+        "rollNo": rollNo,
+
+        "writerName": writer,
+        "pages": pagesCount,
+
+        "title": assignment["title"],
+        "teacher": assignment["teacherName"],
+        "teacherEmail": assignment["teacherEmail"],
+
+        "score": round(score,2),
+
+        "totalQuestions": total,
+        "matchedQuestions": matched,
+        "unansweredQuestions": unanswered
+
+    }
+
+    # Insert into MongoDB
+    inserted = results.insert_one(result)
+
+    # Convert ObjectId → string
+    result["_id"] = str(inserted.inserted_id)
+
+    return result
 
 ##################################################
 # TEACHER RESULTS

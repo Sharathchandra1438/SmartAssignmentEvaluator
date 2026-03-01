@@ -1,121 +1,219 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <title>Teacher Dashboard</title>
-    <link rel="stylesheet" href="/static/style.css">
+
+<title>Teacher Dashboard</title>
+
+<link rel="stylesheet" href="/static/style.css">
+
 </head>
+
 <body>
 
 {% include 'navbar.html' %}
 
 <h1>Teacher Dashboard</h1>
 
-<div class="container">
-    <h2>Create Assignment</h2>
-    <input id="title" placeholder="Assignment Title"><br><br>
-    <textarea id="points" rows="6" placeholder="Questions (One Per Line)"></textarea><br><br>
-    <button onclick="createAssignment()">Create Assignment</button>
-</div>
 
 <div class="container">
-    <h2>Student Submissions</h2>
-    <table border="1">
-        <tr>
-            <th>Student</th>
-            <th>Roll</th>
-            <th>Writer</th>
-            <th>Pages</th>
-            <th>Assignment</th>
-            <th>Score</th>
-            <th>Marks</th>
-        </tr>
-        <tbody id="tableBody"></tbody>
-    </table>
+
+<h2>Create Assignment</h2>
+
+<input id="title" placeholder="Assignment Title">
+
+<br><br>
+
+<textarea id="points" rows="6"
+placeholder="Questions (One Per Line)">
+</textarea>
+
+<br><br>
+
+<button onclick="createAssignment()">
+Create Assignment
+</button>
+
 </div>
+
+
+
+<div class="container">
+
+<h2>Student Submissions</h2>
+
+<table border="1">
+
+<tr>
+
+<th>Student</th>
+<th>Roll</th>
+<th>Writer</th>
+<th>Pages</th>
+<th>Assignment</th>
+<th>Score</th>
+<th>Marks</th>
+
+</tr>
+
+<tbody id="tableBody">
+
+</tbody>
+
+</table>
+
+</div>
+
+
 
 <script>
-const API_URL = window.location.hostname.includes("localhost")
-    ? "http://127.0.0.1:8000"
-    : "https://smartassignmentevaluator-5.onrender.com";
 
-let userData = localStorage.getItem("user");
-if(!userData) window.location="/login";
-let user = JSON.parse(userData);
+/* LOGIN CHECK */
 
-// MARKS CALCULATION
-function calculateMarks(score, pages){
-    score=parseFloat(score)
-    pages=parseInt(pages)
-    if(score===0) return 0
-    if(score<5 && pages<5) return 1
-    if(score>=5 && score<10 && pages>=3) return 2
-    if(score>=10 && score<30 && pages>=5) return 3
-    if(score>=30 && score<60 && pages>=7) return 4
-    if(score>=60 && pages>=10) return 5
-    return 3
+let userData = localStorage.getItem("user")
+
+if(!userData){
+
+window.location.href="/login"
+
 }
 
-// LOAD RESULTS
+let user = JSON.parse(userData)
+
+
+
+/* MARKS CALCULATION */
+
+function calculateMarks(score,pages){
+
+score=parseFloat(score)
+pages=parseInt(pages)
+
+/* 0 marks */
+
+if(score===0)
+return 0
+
+/* 1 mark */
+
+if(score<5 && pages<5)
+return 1
+
+/* 2 marks */
+
+if(score>=5 && score<10 && pages>=3)
+return 2
+
+/* 3 marks */
+
+if(score>=10 && score<30 && pages>=5)
+return 3
+
+/* 4 marks */
+
+if(score>=30 && score<60 && pages>=7)
+return 4
+
+/* 5 marks */
+
+if(score>=60 && pages>=10)
+return 5
+
+/* Default */
+
+return 3
+
+
+}
+
+
+
+/* LOAD RESULTS */
+
+loadResults()
+
 async function loadResults(){
-    try{
-        let res = await fetch(`${API_URL}/results/${user.email}`);
-        if(!res.ok){
-            alert("Server error: " + res.status);
-            return;
-        }
-        let data = await res.json();
-        let table=document.getElementById("tableBody");
-        table.innerHTML="";
-        data.forEach(r=>{
-            let marks=calculateMarks(r.score,r.pages);
-            let row = `<tr>
-                <td>${r.student}</td>
-                <td>${r.roll}</td>
-                <td>${r.writer}</td>
-                <td>${r.pages}</td>
-                <td>${r.title}</td>
-                <td>${r.score}%</td>
-                <td>${marks}/5</td>
-            </tr>`;
-            table.innerHTML += row;
-        });
-    } catch(err){
-        alert("Failed to load results. Check backend.");
-        console.error(err);
-    }
-}
-loadResults();
 
-// CREATE ASSIGNMENT
+let res = await fetch(
+"http://127.0.0.1:8000/results/"+user.email
+)
+
+let data = await res.json()
+
+let table=document.getElementById("tableBody")
+
+table.innerHTML=""
+
+data.forEach(r=>{
+
+
+let marks=calculateMarks(r.score,r.pages)
+
+
+let row=`
+
+<tr>
+
+<td>${r.student}</td>
+
+<td>${r.roll}</td>
+
+<td>${r.writer}</td>
+
+<td>${r.pages}</td>
+
+<td>${r.title}</td>
+
+<td>${r.score}%</td>
+
+<td>${marks}/5</td>
+
+</tr>
+
+`
+
+table.innerHTML+=row
+
+})
+
+}
+
+
+
+/* CREATE ASSIGNMENT */
+
 async function createAssignment(){
-    let title=document.getElementById("title").value.trim();
-    let points=document.getElementById("points").value.trim();
-    if(!title || !points){
-        alert("Please fill all fields.");
-        return;
-    }
 
-    let formData=new FormData();
-    formData.append("teacherName", user.name);
-    formData.append("teacherEmail", user.email);
-    formData.append("title", title);
-    formData.append("points", points);
+let title=document.getElementById("title").value
 
-    try{
-        let res = await fetch(`${API_URL}/createAssignment`, { method:"POST", body: formData });
-        if(!res.ok){
-            alert("Server error: " + res.status);
-            return;
-        }
-        let data = await res.json();
-        alert(data.message || "Assignment Created");
-        loadResults();
-    } catch(err){
-        alert("Failed to create assignment. Check backend.");
-        console.error(err);
-    }
+let points=document.getElementById("points").value
+
+
+let formData=new FormData()
+
+formData.append("teacherName",user.name)
+
+formData.append("teacherEmail",user.email)
+
+formData.append("title",title)
+
+formData.append("points",points)
+
+
+await fetch(
+"http://127.0.0.1:8000/createAssignment",
+{
+method:"POST",
+body:formData
+})
+
+alert("Assignment Created")
+
 }
+
+
 </script>
 
 </body>
+
 </html>
