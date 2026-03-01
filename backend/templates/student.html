@@ -32,8 +32,9 @@
 <script>
 const API_URL = window.location.hostname.includes("localhost")
     ? "http://127.0.0.1:8000"
-    : "https://smartassignmentevaluator-4.onrender.com";
+    : "https://smartassignmentevaluator-5.onrender.com";
 
+// LOGIN CHECK
 let userData = localStorage.getItem("user");
 if(!userData){
     window.location="/login";
@@ -42,21 +43,25 @@ let user = JSON.parse(userData);
 
 // MARKS CALCULATION
 function calculateMarks(score, pages){
-    score=parseFloat(score)
-    pages=parseInt(pages)
-    if(score===0) return 0
-    if(score<5 && pages<5) return 1
-    if(score>=5 && score<10 && pages>=3) return 2
-    if(score>=10 && score<30 && pages>=5) return 3
-    if(score>=30 && score<60 && pages>=7) return 4
-    if(score>=60 && pages>=10) return 5
-    return 3
+    score=parseFloat(score);
+    pages=parseInt(pages);
+    if(score===0) return 0;
+    if(score<5 && pages<5) return 1;
+    if(score>=5 && score<10 && pages>=3) return 2;
+    if(score>=10 && score<30 && pages>=5) return 3;
+    if(score>=30 && score<60 && pages>=7) return 4;
+    if(score>=60 && pages>=10) return 5;
+    return 3;
 }
 
 // LOAD ASSIGNMENTS
 async function loadAssignments(){
     try{
         let res = await fetch(`${API_URL}/assignments`);
+        if(!res.ok){
+            alert("Failed to load assignments. Server returned: " + res.status);
+            return;
+        }
         let data = await res.json();
         let select = document.getElementById("assignment");
         select.innerHTML = "<option>Select Assignment</option>";
@@ -75,16 +80,24 @@ loadAssignments();
 
 // SUBMIT ASSIGNMENT
 async function submitAssignment(){
+    let name = document.getElementById("name").value.trim();
+    let roll = document.getElementById("roll").value.trim();
+    let assignmentId = document.getElementById("assignment").value;
     let fileInput = document.getElementById("file");
+
+    if(!name || !roll || assignmentId==="Select Assignment"){
+        alert("Please fill all fields and select an assignment.");
+        return;
+    }
     if(fileInput.files.length === 0){
         alert("Please select a file to upload.");
         return;
     }
 
     let formData = new FormData();
-    formData.append("studentName", document.getElementById("name").value);
-    formData.append("rollNo", document.getElementById("roll").value);
-    formData.append("assignmentId", document.getElementById("assignment").value);
+    formData.append("studentName", name);
+    formData.append("rollNo", roll);
+    formData.append("assignmentId", assignmentId);
     formData.append("file", fileInput.files[0]);
 
     try{

@@ -36,7 +36,7 @@
 <script>
 const API_URL = window.location.hostname.includes("localhost")
     ? "http://127.0.0.1:8000"
-    : "https://smartassignmentevaluator-4.onrender.com";
+    : "https://smartassignmentevaluator-5.onrender.com";
 
 let userData = localStorage.getItem("user");
 if(!userData) window.location="/login";
@@ -88,8 +88,13 @@ loadResults();
 
 // CREATE ASSIGNMENT
 async function createAssignment(){
-    let title=document.getElementById("title").value;
-    let points=document.getElementById("points").value;
+    let title=document.getElementById("title").value.trim();
+    let points=document.getElementById("points").value.trim();
+    if(!title || !points){
+        alert("Please fill all fields.");
+        return;
+    }
+
     let formData=new FormData();
     formData.append("teacherName", user.name);
     formData.append("teacherEmail", user.email);
@@ -98,11 +103,15 @@ async function createAssignment(){
 
     try{
         let res = await fetch(`${API_URL}/createAssignment`, { method:"POST", body: formData });
+        if(!res.ok){
+            alert("Server error: " + res.status);
+            return;
+        }
         let data = await res.json();
         alert(data.message || "Assignment Created");
         loadResults();
     } catch(err){
-        alert("Failed to create assignment.");
+        alert("Failed to create assignment. Check backend.");
         console.error(err);
     }
 }
