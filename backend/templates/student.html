@@ -1,8 +1,12 @@
+<!DOCTYPE html>
 <html>
 
 <head>
+
 <title>Student Dashboard</title>
+
 <link rel="stylesheet" href="/static/style.css">
+
 </head>
 
 <body>
@@ -24,7 +28,9 @@
 <h2>Upload Assignment</h2>
 
 <select id="assignment">
+
 <option>Select Assignment</option>
+
 </select>
 
 <input type="file" id="file">
@@ -47,9 +53,20 @@ No submission yet
 
 </div>
 
+
+
 <script>
 
+/* API URL */
+
+const API_URL = window.location.origin;
+
+
+
+/* LOAD ASSIGNMENTS */
+
 loadAssignments()
+
 
 
 /* MARKS CALCULATION */
@@ -59,40 +76,14 @@ function calculateMarks(score,pages){
 score=parseFloat(score)
 pages=parseInt(pages)
 
-/* 0 marks */
-
-if(score===0)
-return 0
-
-/* 1 mark */
-
-if(score<5 && pages<5)
-return 1
-
-/* 2 marks */
-
-if(score>=5 && score<10 && pages>=3)
-return 2
-
-/* 3 marks */
-
-if(score>=10 && score<30 && pages>=5)
-return 3
-
-/* 4 marks */
-
-if(score>=30 && score<60 && pages>=7)
-return 4
-
-/* 5 marks */
-
-if(score>=60 && pages>=10)
-return 5
-
-/* Default */
+if(score===0) return 0
+if(score<5 && pages<5) return 1
+if(score>=5 && score<10 && pages>=3) return 2
+if(score>=10 && score<30 && pages>=5) return 3
+if(score>=30 && score<60 && pages>=7) return 4
+if(score>=60 && pages>=10) return 5
 
 return 3
-
 
 }
 
@@ -101,12 +92,14 @@ return 3
 async function loadAssignments(){
 
 let res=await fetch(
-"http://127.0.0.1:8000/assignments"
+API_URL + "/assignments"
 )
 
 let data=await res.json()
 
 let select=document.getElementById("assignment")
+
+select.innerHTML="<option>Select Assignment</option>"
 
 data.forEach(a=>{
 
@@ -148,8 +141,9 @@ formData.append(
 document.getElementById("file").files[0]
 )
 
+
 let res=await fetch(
-"http://127.0.0.1:8000/submitAssignment",
+API_URL + "/submitAssignment",
 {
 method:"POST",
 body:formData
@@ -157,8 +151,6 @@ body:formData
 
 let data=await res.json()
 
-
-/* CALCULATE MARKS */
 
 let marks=calculateMarks(data.score,data.pages)
 
@@ -180,7 +172,9 @@ document.getElementById("result").innerHTML=
 
 }
 
+
 </script>
 
 </body>
+
 </html>

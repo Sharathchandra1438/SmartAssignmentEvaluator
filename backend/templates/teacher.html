@@ -68,14 +68,17 @@ Create Assignment
 
 <script>
 
+/* API URL (Works Local + Online) */
+
+const API_URL = window.location.origin;
+
+
 /* LOGIN CHECK */
 
 let userData = localStorage.getItem("user")
 
 if(!userData){
-
 window.location.href="/login"
-
 }
 
 let user = JSON.parse(userData)
@@ -89,40 +92,14 @@ function calculateMarks(score,pages){
 score=parseFloat(score)
 pages=parseInt(pages)
 
-/* 0 marks */
-
-if(score===0)
-return 0
-
-/* 1 mark */
-
-if(score<5 && pages<5)
-return 1
-
-/* 2 marks */
-
-if(score>=5 && score<10 && pages>=3)
-return 2
-
-/* 3 marks */
-
-if(score>=10 && score<30 && pages>=5)
-return 3
-
-/* 4 marks */
-
-if(score>=30 && score<60 && pages>=7)
-return 4
-
-/* 5 marks */
-
-if(score>=60 && pages>=10)
-return 5
-
-/* Default */
+if(score===0) return 0
+if(score<5 && pages<5) return 1
+if(score>=5 && score<10 && pages>=3) return 2
+if(score>=10 && score<30 && pages>=5) return 3
+if(score>=30 && score<60 && pages>=7) return 4
+if(score>=60 && pages>=10) return 5
 
 return 3
-
 
 }
 
@@ -135,7 +112,7 @@ loadResults()
 async function loadResults(){
 
 let res = await fetch(
-"http://127.0.0.1:8000/results/"+user.email
+API_URL + "/results/" + user.email
 )
 
 let data = await res.json()
@@ -146,9 +123,7 @@ table.innerHTML=""
 
 data.forEach(r=>{
 
-
 let marks=calculateMarks(r.score,r.pages)
-
 
 let row=`
 
@@ -201,13 +176,15 @@ formData.append("points",points)
 
 
 await fetch(
-"http://127.0.0.1:8000/createAssignment",
+API_URL + "/createAssignment",
 {
 method:"POST",
 body:formData
 })
 
 alert("Assignment Created")
+
+loadResults()
 
 }
 
